@@ -123,6 +123,9 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
      */
     protected boolean mIsLooping;
 
+    protected boolean zoomable;
+    protected boolean useDecorView;
+
     /**
      * {@link #mPlayerContainer}背景色，默认黑色
      */
@@ -138,7 +141,8 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
     public VideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        zoomLayout=new ZoomLayout(getContext());
+
+
         //读取全局配置
         VideoViewConfig config = VideoViewManager.getConfig();
         mEnableAudioFocus = config.mEnableAudioFocus;
@@ -151,10 +155,15 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.VideoView);
         mEnableAudioFocus = a.getBoolean(R.styleable.VideoView_enableAudioFocus, mEnableAudioFocus);
         mIsLooping = a.getBoolean(R.styleable.VideoView_looping, false);
+        zoomable = a.getBoolean(R.styleable.VideoView_zoomable,false);
+        useDecorView =a.getBoolean(R.styleable.VideoView_useDecorView,true);
         mCurrentScreenScaleType = a.getInt(R.styleable.VideoView_screenScaleType, mCurrentScreenScaleType);
         mPlayerBackgroundColor = a.getColor(R.styleable.VideoView_playerBackgroundColor, Color.BLACK);
+        if (zoomable) {
+            zoomLayout = new ZoomLayout(getContext());
+            useDecorView = false;
+        }
         a.recycle();
-
         initView();
     }
 
@@ -321,12 +330,16 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 Gravity.CENTER);
 
-        zoomLayout.setMinZoom(1f);
-        zoomLayout.setMaxZoom(4f);
-        zoomLayout.setOneFingerScrollEnabled(false);
-        zoomLayout.setFlingEnabled(false);
-        zoomLayout.addView(mRenderView.getView());
-        mPlayerContainer.addView(zoomLayout, 0, params);
+        if (zoomable) {
+            zoomLayout.setMinZoom(1f);
+            zoomLayout.setMaxZoom(4f);
+            zoomLayout.setOneFingerScrollEnabled(false);
+            zoomLayout.setFlingEnabled(false);
+            zoomLayout.addView(mRenderView.getView());
+            mPlayerContainer.addView(zoomLayout, 0, params);
+        }else {
+            mPlayerContainer.addView(mRenderView.getView(), 0, params);
+        }
     }
 
     /**
@@ -765,17 +778,21 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
         hideSysBar(decorView);
 
         //从当前FrameLayout中移除播放器视图
-//        this.removeView(mPlayerContainer);
-//        //将播放器视图添加到DecorView中即实现了全屏
-//
-//
-//        decorView.addView(mPlayerContainer);
-        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        if (useDecorView) {
+            this.removeView(mPlayerContainer);
+            //将播放器视图添加到DecorView中即实现了全屏
+
+
+            decorView.addView(mPlayerContainer);
+        }else {
+            getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            }
         }
+
 
 
         setPlayerState(PLAYER_FULL_SCREEN);
@@ -797,12 +814,15 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
         //显示NavigationBar和StatusBar
         showSysBar(decorView);
-
+        if (useDecorView) {
 //        //把播放器视图从DecorView中移除并添加到当前FrameLayout中即退出了全屏
-//        decorView.removeView(mPlayerContainer);
-//        this.addView(mPlayerContainer);
+            decorView.removeView(mPlayerContainer);
+            this.addView(mPlayerContainer);
+        }
 
-        zoomLayout.getEngine().clear();
+        if (zoomable) {
+            zoomLayout.getEngine().clear();
+        }
 
 
         setPlayerState(PLAYER_NORMAL);
@@ -813,8 +833,9 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Log.e("acccccc",ev.getAction()+"///");
-        zoomLayout.onInterceptTouchEvent(ev);
+        if (zoomable) {
+            zoomLayout.onInterceptTouchEvent(ev);
+        }
         return super.onInterceptTouchEvent(ev);
     }
 

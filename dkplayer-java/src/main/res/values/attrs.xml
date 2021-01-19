@@ -2,6 +2,8 @@
 <resources>
     <declare-styleable name="VideoView">
         <attr name="looping" format="boolean"/>
+        <attr name="zoomable" format="boolean"/>
+        <attr name="useDecorView" format="boolean"/>
         <attr name="enableAudioFocus" format="boolean"/>
         <attr name="screenScaleType" format="dimension">
             <enum name="type_default" value="0"/>

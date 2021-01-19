@@ -48,11 +48,13 @@ public class MeasureHelper {
         switch (mCurrentScreenScale) {
             case VideoView.SCREEN_SCALE_DEFAULT:
             default:
-                if (mVideoWidth * height < width * mVideoHeight) {
-                    width = height * mVideoWidth / mVideoHeight;
-                } else if (mVideoWidth * height > width * mVideoHeight) {
-                    height = width * mVideoHeight / mVideoWidth;
-                }
+//                if (mVideoWidth * height < width * mVideoHeight) {
+//                    width = height * mVideoWidth / mVideoHeight;
+//                } else if (mVideoWidth * height > width * mVideoHeight) {
+//                    height = width * mVideoHeight / mVideoWidth;
+//                }
+                width = mVideoWidth;
+                height = mVideoHeight;
                 break;
             case VideoView.SCREEN_SCALE_ORIGINAL:
                 width = mVideoWidth;
