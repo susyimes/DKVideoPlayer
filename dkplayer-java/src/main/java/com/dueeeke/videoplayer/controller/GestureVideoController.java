@@ -114,14 +114,26 @@ public abstract class GestureVideoController extends BaseVideoController impleme
                 && mCurPlayState != VideoView.STATE_START_ABORT
                 && mCurPlayState != VideoView.STATE_PLAYBACK_COMPLETED;
     }
+    private boolean doubleMove = false;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction()==MotionEvent.ACTION_POINTER_DOWN||event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN){
+            doubleMove =true;
             return false;
+        }else if (event.getAction()==MotionEvent.ACTION_POINTER_UP||event.getAction() == MotionEvent.ACTION_UP){
+            doubleMove = false;
+            return mGestureDetector.onTouchEvent(event);
+        }else if (event.getAction() == MotionEvent.ACTION_MOVE){
+            if (doubleMove){
+                return  false;
+            }else {
+                return mGestureDetector.onTouchEvent(event);
+            }
         }else {
             return mGestureDetector.onTouchEvent(event);
         }
+
     }
 
     /**
@@ -172,6 +184,7 @@ public abstract class GestureVideoController extends BaseVideoController impleme
      */
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        if (!doubleMove) {
         if (!isInPlaybackState() //不处于播放状态
                 || !mIsGestureEnabled //关闭了手势
                 || !mCanSlide //关闭了滑动手势
@@ -207,12 +220,14 @@ public abstract class GestureVideoController extends BaseVideoController impleme
             }
             mFirstTouch = false;
         }
-        if (mChangePosition) {
-            slideToChangePosition(deltaX);
-        } else if (mChangeBrightness) {
-            slideToChangeBrightness(deltaY);
-        } else if (mChangeVolume) {
-            slideToChangeVolume(deltaY);
+
+            if (mChangePosition) {
+                slideToChangePosition(deltaX);
+            } else if (mChangeBrightness) {
+                slideToChangeBrightness(deltaY);
+            } else if (mChangeVolume) {
+                slideToChangeVolume(deltaY);
+            }
         }
         return true;
     }
