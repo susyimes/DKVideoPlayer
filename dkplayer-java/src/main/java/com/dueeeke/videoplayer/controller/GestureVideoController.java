@@ -3,6 +3,7 @@ package com.dueeeke.videoplayer.controller;
 import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -13,6 +14,7 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.dueeeke.videoplayer.R;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.dueeeke.videoplayer.util.PlayerUtils;
 
@@ -115,18 +117,28 @@ public abstract class GestureVideoController extends BaseVideoController impleme
                 && mCurPlayState != VideoView.STATE_PLAYBACK_COMPLETED;
     }
     private boolean doubleMove = false;
+    private boolean interceptMoveChange = false;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (event.getAction()==MotionEvent.ACTION_POINTER_DOWN||event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN){
             doubleMove =true;
+            interceptMoveChange=true;
             return false;
         }else if (event.getAction()==MotionEvent.ACTION_POINTER_UP||event.getAction() == MotionEvent.ACTION_UP){
-            doubleMove = false;
-            return mGestureDetector.onTouchEvent(event);
+           this.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!interceptMoveChange) {
+                        doubleMove = false;
+                    }
+                }
+            },100);
+           interceptMoveChange =false;
+           return mGestureDetector.onTouchEvent(event);
         }else if (event.getAction() == MotionEvent.ACTION_MOVE){
             if (doubleMove){
-                return  false;
+                return false;
             }else {
                 return mGestureDetector.onTouchEvent(event);
             }

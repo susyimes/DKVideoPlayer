@@ -331,6 +331,9 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
                 Gravity.CENTER);
 
         if (zoomable) {
+            zoomLayout.setZoomEnabled(false);
+            zoomLayout.setVerticalPanEnabled(false);
+            zoomLayout.setHorizontalPanEnabled(false);
             zoomLayout.setMinZoom(1f);
             zoomLayout.setMaxZoom(4f);
             zoomLayout.setOneFingerScrollEnabled(false);
@@ -781,8 +784,6 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
         if (useDecorView) {
             this.removeView(mPlayerContainer);
             //将播放器视图添加到DecorView中即实现了全屏
-
-
             decorView.addView(mPlayerContainer);
         }else {
             getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -791,6 +792,11 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             }
+        }
+        if (zoomable){
+            zoomLayout.setZoomEnabled(true);
+            zoomLayout.setVerticalPanEnabled(true);
+            zoomLayout.setHorizontalPanEnabled(true);
         }
 
 
@@ -822,6 +828,9 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
         if (zoomable) {
             zoomLayout.getEngine().clear();
+            zoomLayout.setZoomEnabled(false);
+            zoomLayout.setVerticalPanEnabled(false);
+            zoomLayout.setHorizontalPanEnabled(false);
         }
 
 
