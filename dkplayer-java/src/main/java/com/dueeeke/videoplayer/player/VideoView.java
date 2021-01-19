@@ -12,7 +12,9 @@ import android.os.Build;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -28,6 +30,7 @@ import com.dueeeke.videoplayer.render.IRenderView;
 import com.dueeeke.videoplayer.render.RenderViewFactory;
 import com.dueeeke.videoplayer.util.L;
 import com.dueeeke.videoplayer.util.PlayerUtils;
+import com.otaliastudios.zoom.ZoomLayout;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +54,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
      * 真正承载播放器视图的容器
      */
     protected FrameLayout mPlayerContainer;
-
+    public ZoomLayout zoomLayout;
     protected IRenderView mRenderView;
     protected RenderViewFactory mRenderViewFactory;
 
@@ -135,7 +138,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
 
     public VideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
+        zoomLayout=new ZoomLayout(getContext());
         //读取全局配置
         VideoViewConfig config = VideoViewManager.getConfig();
         mEnableAudioFocus = config.mEnableAudioFocus;
@@ -317,7 +320,13 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 Gravity.CENTER);
-        mPlayerContainer.addView(mRenderView.getView(), 0, params);
+
+        zoomLayout.setMinZoom(1f);
+        zoomLayout.setMaxZoom(4f);
+        zoomLayout.setOneFingerScrollEnabled(false);
+        zoomLayout.setFlingEnabled(false);
+        zoomLayout.addView(mRenderView.getView());
+        mPlayerContainer.addView(zoomLayout, 0, params);
     }
 
     /**
@@ -756,12 +765,59 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
         hideSysBar(decorView);
 
         //从当前FrameLayout中移除播放器视图
-        this.removeView(mPlayerContainer);
-        //将播放器视图添加到DecorView中即实现了全屏
-        decorView.addView(mPlayerContainer);
+//        this.removeView(mPlayerContainer);
+//        //将播放器视图添加到DecorView中即实现了全屏
+//
+//
+//        decorView.addView(mPlayerContainer);
+        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE|View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        }
+
 
         setPlayerState(PLAYER_FULL_SCREEN);
     }
+
+    /**
+     * 退出全屏
+     */
+    @Override
+    public void stopFullScreen() {
+        if (!mIsFullScreen)
+            return;
+
+        ViewGroup decorView = getDecorView();
+        if (decorView == null)
+            return;
+
+        mIsFullScreen = false;
+
+        //显示NavigationBar和StatusBar
+        showSysBar(decorView);
+
+//        //把播放器视图从DecorView中移除并添加到当前FrameLayout中即退出了全屏
+//        decorView.removeView(mPlayerContainer);
+//        this.addView(mPlayerContainer);
+
+        zoomLayout.getEngine().clear();
+
+
+        setPlayerState(PLAYER_NORMAL);
+    }
+
+
+
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Log.e("acccccc",ev.getAction()+"///");
+        zoomLayout.onInterceptTouchEvent(ev);
+        return super.onInterceptTouchEvent(ev);
+    }
+
 
     private void hideSysBar(ViewGroup decorView) {
         int uiOptions = decorView.getSystemUiVisibility();
@@ -786,29 +842,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
         }
     }
 
-    /**
-     * 退出全屏
-     */
-    @Override
-    public void stopFullScreen() {
-        if (!mIsFullScreen)
-            return;
 
-        ViewGroup decorView = getDecorView();
-        if (decorView == null)
-            return;
-
-        mIsFullScreen = false;
-
-        //显示NavigationBar和StatusBar
-        showSysBar(decorView);
-
-        //把播放器视图从DecorView中移除并添加到当前FrameLayout中即退出了全屏
-        decorView.removeView(mPlayerContainer);
-        this.addView(mPlayerContainer);
-
-        setPlayerState(PLAYER_NORMAL);
-    }
 
     private void showSysBar(ViewGroup decorView) {
         int uiOptions = decorView.getSystemUiVisibility();
@@ -1030,6 +1064,10 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
                 }
             }
         }
+    }
+
+    public void dispatchParentEvent(MotionEvent event) {
+        zoomLayout.onTouchEvent(event);
     }
 
     /**

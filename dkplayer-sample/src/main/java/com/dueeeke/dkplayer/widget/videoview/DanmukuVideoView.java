@@ -23,6 +23,7 @@ import com.dueeeke.dkplayer.widget.CenteredImageSpan;
 import com.dueeeke.videoplayer.BuildConfig;
 import com.dueeeke.videoplayer.player.VideoView;
 import com.dueeeke.videoplayer.util.PlayerUtils;
+import com.otaliastudios.zoom.ZoomLayout;
 
 import master.flame.danmaku.controller.IDanmakuView;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
@@ -68,6 +69,7 @@ public class DanmukuVideoView extends VideoView {
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         layoutParams.topMargin = (int) PlayerUtils.getStatusBarHeight(getContext());
         mPlayerContainer.addView(mDanmakuView, layoutParams);
+
         //将控制器提到最顶层，如果有的话
         if (mVideoController != null) {
             mVideoController.bringToFront();

@@ -3,7 +3,10 @@ package com.dueeeke.dkplayer.activity.api;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -46,10 +49,23 @@ public class PlayerActivity extends BaseActivity<VideoView> {
         return R.layout.activity_player;
     }
 
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        Log.e("accccparent",event.getAction()+"///");
+//        if (mVideoView.isFullScreen()){
+//            mVideoView.dispatchParentEvent(event);
+//        }
+//        return super.onTouchEvent(event);
+//    }
+
+
+
     @Override
     protected void initView() {
         super.initView();
         mVideoView = findViewById(R.id.player);
+
+
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -128,6 +144,7 @@ public class PlayerActivity extends BaseActivity<VideoView> {
 //            mVideoView.setPlayerFactory(AndroidMediaPlayerFactory.create());
 
             mVideoView.start();
+
         }
 
         //播放其他视频
@@ -146,9 +163,15 @@ public class PlayerActivity extends BaseActivity<VideoView> {
         @Override
         public void onPlayerStateChanged(int playerState) {
             switch (playerState) {
-                case VideoView.PLAYER_NORMAL://小屏
+                case VideoView.PLAYER_NORMAL://小屏\
+                    ViewGroup.LayoutParams layoutParams2 = mVideoView.getLayoutParams();
+                    layoutParams2.height = 420;
+                    mVideoView.setLayoutParams(layoutParams2);
                     break;
                 case VideoView.PLAYER_FULL_SCREEN://全屏
+                    ViewGroup.LayoutParams layoutParams = mVideoView.getLayoutParams();
+                    layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                    mVideoView.setLayoutParams(layoutParams);
                     break;
             }
         }

@@ -14,6 +14,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     compileOnly project.ext.annotation
+    api 'com.otaliastudios:zoomlayout:1.8.0'
+
 }
 
 ext {

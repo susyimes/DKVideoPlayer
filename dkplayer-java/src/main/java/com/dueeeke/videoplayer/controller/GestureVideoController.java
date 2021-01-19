@@ -117,7 +117,11 @@ public abstract class GestureVideoController extends BaseVideoController impleme
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
+        if (event.getAction()==MotionEvent.ACTION_POINTER_DOWN||event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN){
+            return false;
+        }else {
+            return mGestureDetector.onTouchEvent(event);
+        }
     }
 
     /**
