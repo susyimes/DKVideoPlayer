@@ -160,6 +160,7 @@ public class VideoView<P extends AbstractPlayer> extends FrameLayout
         mCurrentScreenScaleType = a.getInt(R.styleable.VideoView_screenScaleType, mCurrentScreenScaleType);
         mPlayerBackgroundColor = a.getColor(R.styleable.VideoView_playerBackgroundColor, Color.BLACK);
         if (zoomable) {
+            mCurrentScreenScaleType = SCREEN_SCALE_ORIGINAL;
             zoomLayout = new ZoomLayout(getContext());
             useDecorView = false;
         }
