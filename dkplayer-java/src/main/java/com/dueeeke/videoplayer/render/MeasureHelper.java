@@ -1,5 +1,6 @@
 package com.dueeeke.videoplayer.render;
 
+import android.util.Log;
 import android.view.View;
 
 import com.dueeeke.videoplayer.player.VideoView;
@@ -31,6 +32,7 @@ public class MeasureHelper {
      * 注意：VideoView的宽高一定要定死，否者以下算法不成立
      */
     public int[] doMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
         if (mVideoRotationDegree == 90 || mVideoRotationDegree == 270) { // 软解码时处理旋转信息，交换宽高
             widthMeasureSpec = widthMeasureSpec + heightMeasureSpec;
             heightMeasureSpec = widthMeasureSpec - heightMeasureSpec;
@@ -48,13 +50,15 @@ public class MeasureHelper {
         switch (mCurrentScreenScale) {
             case VideoView.SCREEN_SCALE_DEFAULT:
             default:
-//                if (mVideoWidth * height < width * mVideoHeight) {
-//                    width = height * mVideoWidth / mVideoHeight;
-//                } else if (mVideoWidth * height > width * mVideoHeight) {
-//                    height = width * mVideoHeight / mVideoWidth;
-//                }
-                width = mVideoWidth;
-                height = mVideoHeight;
+//                Log.e("hhhhhh",mVideoHeight+"///"+mVideoWidth+"///"+height);
+                if (mVideoWidth * height > width * mVideoHeight) {
+                    width = height * mVideoWidth / mVideoHeight;
+                } else {
+                    height = width * mVideoHeight / mVideoWidth;
+                }
+//                Log.e("hhhhhh2",width+"///"+height);
+//                width = mVideoWidth;
+//                height = mVideoHeight;
                 break;
             case VideoView.SCREEN_SCALE_ORIGINAL:
                 width = mVideoWidth;

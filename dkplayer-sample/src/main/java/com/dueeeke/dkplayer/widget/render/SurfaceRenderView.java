@@ -80,7 +80,8 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView, Surfa
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int[] measuredSize = mMeasureHelper.doMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        int[] measuredSize = mMeasureHelper.doMeasure( getView().getRootView().getWidth(), getView().getRootView().getHeight());
         setMeasuredDimension(measuredSize[0], measuredSize[1]);
     }
 
