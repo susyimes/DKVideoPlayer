@@ -7,6 +7,7 @@ import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,7 +78,8 @@ public class TextureRenderView extends TextureView implements IRenderView, Textu
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int[] measuredSize = mMeasureHelper.doMeasure( getView().getRootView().getWidth(), getView().getRootView().getHeight());
+        ViewGroup mViewGroup = (ViewGroup) getParent();
+        int[] measuredSize = mMeasureHelper.doMeasure(mViewGroup.getWidth(), mViewGroup.getHeight());
         setMeasuredDimension(measuredSize[0], measuredSize[1]);
     }
 

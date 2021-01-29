@@ -7,6 +7,7 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
@@ -81,7 +82,8 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView, Surfa
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 
-        int[] measuredSize = mMeasureHelper.doMeasure( getView().getRootView().getWidth(), getView().getRootView().getHeight());
+        ViewGroup mViewGroup = (ViewGroup) getParent();
+        int[] measuredSize = mMeasureHelper.doMeasure(mViewGroup.getWidth(), mViewGroup.getHeight());
         setMeasuredDimension(measuredSize[0], measuredSize[1]);
     }
 
